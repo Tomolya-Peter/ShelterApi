@@ -16,30 +16,16 @@ public class SheltersController : ApiControllerBase
         _context = context;
     }
 
-    private static string? Validate(string? name, string? city, int capacity)
-    {
-        if (string.IsNullOrWhiteSpace(name)) return "A név megadása kötelező.";
-        if (name.Length > 50) return "A név legfeljebb 50 karakter lehet.";
-        if (string.IsNullOrWhiteSpace(city)) return "A város megadása kötelező.";
-        if (city.Length > 40) return "A város legfeljebb 40 karakter lehet.";
-        if (capacity < 0) return "A kapacitás nem lehet negatív.";
-        return null;
-    }
-
     [HttpPost("newShelter")]
     public async Task<IActionResult> NewShelter([FromBody] NewShelterDto dto)
     {
         try
         {
-            var error = Validate(dto?.Name, dto?.City, dto?.Capacity ?? 0);
-            if (dto is null || error is not null)
-                return Respond(400, error ?? "Hiányzó kérés törzs.");
-
             var shelter = new Shelter
             {
                 Id = Guid.NewGuid(),
-                Name = dto.Name.Trim(),
-                City = dto.City.Trim(),
+                Name = dto.Name,
+                City = dto.City,
                 Capacity = dto.Capacity,
                 RegTime = DateTime.Now
             };
@@ -98,12 +84,8 @@ public class SheltersController : ApiControllerBase
             if (shelter is null)
                 return Respond(404, "Nem található menhely ezzel az azonosítóval.");
 
-            var error = Validate(dto?.Name, dto?.City, dto?.Capacity ?? 0);
-            if (dto is null || error is not null)
-                return Respond(400, error ?? "Hiányzó kérés törzs.");
-
-            shelter.Name = dto.Name.Trim();
-            shelter.City = dto.City.Trim();
+            shelter.Name = dto.Name;
+            shelter.City = dto.City;
             shelter.Capacity = dto.Capacity;
             await _context.SaveChangesAsync();
 
