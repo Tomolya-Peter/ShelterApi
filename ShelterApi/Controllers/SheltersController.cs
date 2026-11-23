@@ -7,7 +7,7 @@ namespace ShelterApi.Controllers;
 
 [ApiController]
 [Route("shelters")]
-public class SheltersController : ApiControllerBase
+public class SheltersController : ControllerBase
 {
     private readonly AnimalshelterContext _context;
 
@@ -33,11 +33,15 @@ public class SheltersController : ApiControllerBase
             _context.Shelters.Add(shelter);
             await _context.SaveChangesAsync();
 
-            return Respond(201, "A menhely sikeresen rögzítve.", shelter);
+            return StatusCode(201, new
+            {
+                Message = "A menhely sikeresen rögzítve.",
+                Data = shelter
+            });
         }
         catch (Exception ex)
         {
-            return ServerError(ex);
+            return StatusCode(500, ex.Message);
         }
     }
 
@@ -48,13 +52,17 @@ public class SheltersController : ApiControllerBase
         {
             var shelters = await _context.Shelters.ToListAsync();
             if (shelters.Count == 0)
-                return Respond(404, "Nincs menhely az adatbázisban.");
+                return NotFound("Nincs menhely az adatbázisban.");
 
-            return Respond(200, "A menhelyek listája.", shelters);
+            return Ok(new
+            {
+                Message = "A menhelyek listája.",
+                Data = shelters
+            });
         }
         catch (Exception ex)
         {
-            return ServerError(ex);
+            return StatusCode(500, ex.Message);
         }
     }
 
@@ -65,13 +73,17 @@ public class SheltersController : ApiControllerBase
         {
             var shelter = await _context.Shelters.FirstOrDefaultAsync(s => s.Id == id);
             if (shelter is null)
-                return Respond(404, "Nem található menhely ezzel az azonosítóval.");
+                return NotFound("Nem található menhely ezzel az azonosítóval.");
 
-            return Respond(200, "A menhely adatai.", shelter);
+            return Ok(new
+            {
+                Message = "A menhely adatai.",
+                Data = shelter
+            });
         }
         catch (Exception ex)
         {
-            return ServerError(ex);
+            return StatusCode(500, ex.Message);
         }
     }
 
@@ -82,18 +94,22 @@ public class SheltersController : ApiControllerBase
         {
             var shelter = await _context.Shelters.FirstOrDefaultAsync(s => s.Id == id);
             if (shelter is null)
-                return Respond(404, "Nem található menhely ezzel az azonosítóval.");
+                return NotFound("Nem található menhely ezzel az azonosítóval.");
 
             shelter.Name = dto.Name;
             shelter.City = dto.City;
             shelter.Capacity = dto.Capacity;
             await _context.SaveChangesAsync();
 
-            return Respond(200, "A menhely sikeresen módosítva.", shelter);
+            return Ok(new
+            {
+                Message = "A menhely sikeresen módosítva.",
+                Data = shelter
+            });
         }
         catch (Exception ex)
         {
-            return ServerError(ex);
+            return StatusCode(500, ex.Message);
         }
     }
 
@@ -104,16 +120,19 @@ public class SheltersController : ApiControllerBase
         {
             var shelter = await _context.Shelters.FirstOrDefaultAsync(s => s.Id == id);
             if (shelter is null)
-                return Respond(404, "Nem található menhely ezzel az azonosítóval.");
+                return NotFound("Nem található menhely ezzel az azonosítóval.");
 
             _context.Shelters.Remove(shelter);
             await _context.SaveChangesAsync();
 
-            return Respond(200, "A menhely (és a hozzá tartozó állatok) sikeresen törölve.");
+            return Ok(new
+            {
+                Message = "A menhely (és a hozzá tartozó állatok) sikeresen törölve."
+            });
         }
         catch (Exception ex)
         {
-            return ServerError(ex);
+            return StatusCode(500, ex.Message);
         }
     }
 
@@ -127,13 +146,17 @@ public class SheltersController : ApiControllerBase
                 .ToListAsync();
 
             if (shelters.Count == 0)
-                return Respond(404, "Nincs menhely az adatbázisban.");
+                return NotFound("Nincs menhely az adatbázisban.");
 
-            return Respond(200, "A menhelyek az állataikkal.", shelters);
+            return Ok(new
+            {
+                Message = "A menhelyek az állataikkal.",
+                Data = shelters
+            });
         }
         catch (Exception ex)
         {
-            return ServerError(ex);
+            return StatusCode(500, ex.Message);
         }
     }
-}
+}   

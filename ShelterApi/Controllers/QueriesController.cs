@@ -6,7 +6,7 @@ namespace ShelterApi.Controllers;
 
 [ApiController]
 [Route("queries")]
-public class QueriesController : ApiControllerBase
+public class QueriesController : ControllerBase
 {
     private readonly AnimalshelterContext _context;
 
@@ -25,15 +25,17 @@ public class QueriesController : ApiControllerBase
                 .OrderBy(a => a.Name)
                 .ToListAsync();
 
-            return Respond(200, "A menhely állatai név szerint rendezve.", animals);
+            return Ok(new
+            {
+                Message = "A menhely állatai név szerint rendezve.",
+                Data = animals
+            });
         }
         catch (Exception ex)
         {
-            return ServerError(ex);
+            return StatusCode(500, ex.Message);
         }
     }
-
-
 
     [HttpGet("animalStats")]
     public async Task<IActionResult> AnimalStats()
@@ -42,7 +44,7 @@ public class QueriesController : ApiControllerBase
         {
             var count = await _context.Animals.CountAsync();
             if (count == 0)
-                return Respond(404, "Nincs állat az adatbázisban.");
+                return NotFound("Nincs állat az adatbázisban.");
 
             var result = new
             {
@@ -53,11 +55,15 @@ public class QueriesController : ApiControllerBase
                 TotalWeight = await _context.Animals.SumAsync(a => a.Weight)
             };
 
-            return Respond(200, "Az állatok testtömegének statisztikája", result);
+            return Ok(new
+            {
+                Message = "Az állatok testtömegének statisztikája",
+                Data = result
+            });
         }
         catch (Exception ex)
         {
-            return ServerError(ex);
+            return StatusCode(500, ex.Message);
         }
     }
 }
